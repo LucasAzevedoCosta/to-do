@@ -1,0 +1,11 @@
+import { Global, Module } from '@nestjs/common';
+import { drizzleProvider } from './drizzle.provider';
+
+@Global()
+@Module({
+  providers: [drizzleProvider],
+  exports: [drizzleProvider],
+})
+export class DrizzleModule {}
+
+// constructor(@Inject(DRIZZLE_DB) private readonly db: typeof drizzleDb) { }
