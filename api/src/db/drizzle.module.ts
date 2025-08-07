@@ -7,5 +7,3 @@ import { drizzleProvider } from './drizzle.provider';
   exports: [drizzleProvider],
 })
 export class DrizzleModule {}
-
-// constructor(@Inject(DRIZZLE_DB) private readonly db: typeof drizzleDb) { }

@@ -7,3 +7,5 @@ export const drizzleProvider: Provider = {
   provide: DRIZZLE_DB,
   useValue: drizzleDb,
 };
+
+// constructor(@Inject(DRIZZLE_DB) private readonly db: typeof drizzleDb) { }
