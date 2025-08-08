@@ -14,23 +14,3 @@ export class AuthController {
     return handler(req, res);
   }
 }
-
-
-// const response = await fetch('http://localhost:3050/api/auth/sign-in/email', {
-//   method: 'POST',
-//   headers: {
-//     'Content-Type': 'application/json',
-//   },
-//   body: JSON.stringify({
-//     email: 'usuario@exemplo.com',
-//     password: 'senha123',
-//     callbackURL: 'http://localhost:3000/dashboard',
-//   }),
-// });
-
-// const data = await response.json();
-// if (data.error) {
-//   console.error('Erro no login:', data.error.message);
-// } else {
-//   console.log('Login bem-sucedido:', data);
-// }
