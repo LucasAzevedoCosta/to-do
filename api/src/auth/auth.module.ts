@@ -2,9 +2,11 @@ import { Module } from "@nestjs/common";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { drizzle } from "drizzle-orm/neon-http";
+import { AuthService } from "./auth.service";
 
 @Module({
   providers: [
+    AuthService,
     {
       provide: 'DB',
       useFactory: () => drizzle,
