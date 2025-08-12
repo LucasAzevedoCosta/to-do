@@ -12,6 +12,7 @@ import { TaskEditDialog } from "@/components/dashboard/task-edit-dialog";
 import { DeleteConfirmationDialog } from "@/components/dashboard/delete-confirmation-dialog";
 import { type Task } from "@/components/dashboard/task-table";
 import { deleteTaskApi, updateTaskById } from "@/lib/tasks/task-helpers";
+import axiosInstance from "@/lib/axios/axiosInstance";
 
 export default function Dashboard() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -24,18 +25,18 @@ export default function Dashboard() {
   useEffect(() => {
     async function fetchTasks() {
       try {
-        const res = await fetch("/api/tasks", {
-          cache: "no-store",
-          credentials: "include",
+        const res = await axiosInstance.get('/tasks', {
+          headers: {
+            'Cache-Control': 'no-store',
+          },
         });
-        if (!res.ok) throw new Error("Erro ao buscar tasks");
-        const data = await res.json();
-        setTasks(data);
+        setTasks(res.data);
       } catch (error) {
         console.error(error);
         setTasks([]);
       }
     }
+
     fetchTasks();
   }, []);
 
@@ -80,7 +81,7 @@ export default function Dashboard() {
       setTasks((prevTasks) =>
         prevTasks.map((task) => (task.id === updated.id ? updated : task))
       );
-      setEditTask(null); // fecha o modal
+      setEditTask(null);
     } catch (error) {
       console.error("Erro ao salvar tarefa:", error);
       alert("Erro ao atualizar tarefa.");

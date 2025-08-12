@@ -22,8 +22,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-import { signIn } from "@/server/users";
-
 import { z } from "zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -62,14 +60,23 @@ export function LoginForm({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
 
-    const { success, message } = await signIn(values.email, values.password);
-
-    if (success) {
-      toast.success(message as string);
-      router.push("/dashboard");
-    } else {
-      toast.error(message as string);
-    }
+    const { data, error } = await authClient.signIn.email(
+      {
+        email: values.email,
+        password: values.password,
+        callbackURL: "/dashboard",
+        rememberMe: true,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Login bem-sucedido!");
+          router.push("/dashboard");
+        },
+        onError: (ctx) => {
+          toast.error(ctx.error.message);
+        },
+      }
+    );
 
     setIsLoading(false);
   }
@@ -169,8 +176,9 @@ export function LoginForm({
         </CardContent>
       </Card>
       <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        Ao clicar em continuar, você concorda com nossos <a href="#">Termos de Serviço</a>{" "}
-        e <a href="#">Política de Privacidade</a>.
+        Ao clicar em continuar, você concorda com nossos{" "}
+        <a href="#">Termos de Serviço</a> e{" "}
+        <a href="#">Política de Privacidade</a>.
       </div>
     </div>
   );

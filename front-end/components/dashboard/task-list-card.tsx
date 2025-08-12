@@ -4,6 +4,7 @@ import { TaskTable, type Task } from "./task-table";
 import { CreateTaskDialog } from "./create-tasks-dialog";
 import { useState } from "react";
 import { Button } from "@react-email/components";
+import axiosInstance from "@/lib/axios/axiosInstance";
 
 interface TaskListCardProps {
   tasks: Task[];
@@ -11,27 +12,23 @@ interface TaskListCardProps {
   onTaskCreated: (newTask: Task) => void;
 }
 
-export function TaskListCard({ tasks, onTaskAction, onTaskCreated }: TaskListCardProps) {
+export function TaskListCard({
+  tasks,
+  onTaskAction,
+  onTaskCreated,
+}: TaskListCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleSaveTask = async (taskData: Omit<Task, "id">) => {
-  try {
-    const res = await fetch("/api/tasks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(taskData),
-    });
-
-    if (!res.ok) throw new Error("Erro ao criar tarefa");
-
-    const createdTask: Task = await res.json();
-    onTaskCreated(createdTask);
-    console.log("Nova tarefa criada:", createdTask);
-  } catch (error) {
-    console.error("Erro ao criar tarefa:", error);
-  }
-};
-
+    try {
+      const res = await axiosInstance.post("/tasks", taskData);
+      const createdTask: Task = res.data;
+      onTaskCreated(createdTask);
+      console.log("Nova tarefa criada:", createdTask);
+    } catch (error) {
+      console.error("Erro ao criar tarefa:", error);
+    }
+  };
 
   return (
     <Card className="shadow-lg border-0 bg-card backdrop-blur-sm">

@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { User, Mail, Calendar, CheckCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { formatDate } from "@/lib/helpers";
+import axiosInstance from "@/lib/axios/axiosInstance";
 
 interface ProfileDialogProps {
   isOpen: boolean;
@@ -33,12 +34,10 @@ export function ProfileDialog({ isOpen, onOpenChange }: ProfileDialogProps) {
 
     async function fetchUser() {
       try {
-        const res = await fetch("/api/user", { credentials: "include" });
-        if (!res.ok) throw new Error("Erro ao carregar dados do usuário.");
-        const data = await res.json();
-        setUser(data);
+        const res = await axiosInstance.get("/user");
+        setUser(res.data);
       } catch (err) {
-        console.error(err);
+        console.error("Erro ao carregar dados do usuário:", err);
       }
     }
 
