@@ -1,6 +1,18 @@
 import { Type } from 'class-transformer';
 import { IsDate, IsEnum, IsString } from 'class-validator';
 
+export enum TaskStatus {
+  Concluido = 'concluido',
+  NaoConcluido = 'nao_concluido',
+}
+
+export enum TaskPriority {
+  Urgente = 'urgente',
+  Alta = 'alta',
+  Media = 'media',
+  Baixa = 'baixa',
+}
+
 export class CreateTaskDto {
   @IsString()
   title: string;
@@ -8,11 +20,11 @@ export class CreateTaskDto {
   @IsString()
   description: string;
 
-  @IsEnum(['concluido', 'nao_concluido'])
-  status: 'concluido' | 'nao_concluido';
+  @IsEnum(TaskStatus)
+  status: TaskStatus;
 
-  @IsEnum(['urgente', 'alta', 'media', 'baixa'])
-  priority: 'urgente' | 'alta' | 'media' | 'baixa';
+  @IsEnum(TaskPriority)
+  priority: TaskPriority;
 
   @Type(() => Date)
   @IsDate()

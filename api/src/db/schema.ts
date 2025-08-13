@@ -7,6 +7,11 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 
+export const statusEnum = pgEnum('task_status', [
+  'concluido',
+  'nao_concluido',
+])
+
 export const priorityEnum = pgEnum('task_priority', [
   'urgente',
   'alta',
@@ -77,7 +82,7 @@ export const verification = pgTable('verification', {
 export const task = pgTable('task', {
   id: text('id').primaryKey(),
   title: text('title').notNull(),
-  status: text('status').notNull(),
+  status: statusEnum('status').notNull(),
   startDate: timestamp('start_date').notNull(),
   createdAt: timestamp('created_at').$defaultFn(
     () => /* @__PURE__ */ new Date(),

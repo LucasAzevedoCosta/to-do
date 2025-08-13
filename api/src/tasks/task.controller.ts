@@ -14,7 +14,7 @@ import {
 import * as nestjsBetterAuth from '@thallesp/nestjs-better-auth';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/create-task.dto ';
+import { UpdateTaskDto } from './dto/update-task.dto ';
 
 @Controller('tasks')
 @UseGuards(nestjsBetterAuth.AuthGuard)
