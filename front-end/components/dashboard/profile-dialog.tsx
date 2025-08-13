@@ -34,8 +34,8 @@ export function ProfileDialog({ isOpen, onOpenChange }: ProfileDialogProps) {
 
     async function fetchUser() {
       try {
-        const res = await axiosInstance.get("/user");
-        setUser(res.data);
+        const res = await axiosInstance.get("/users/me");
+        setUser(res.data.user);
       } catch (err) {
         console.error("Erro ao carregar dados do usuário:", err);
       }
@@ -54,7 +54,7 @@ export function ProfileDialog({ isOpen, onOpenChange }: ProfileDialogProps) {
         <div className="flex flex-col items-center space-y-6 py-4">
           <Avatar className="h-20 w-20 bg-gradient-to-br from-primary to-secondary">
             <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-card-foreground text-xl">
-              {user?.name[0]}
+              {user?.name?.[0] ?? "?"}
             </AvatarFallback>
           </Avatar>
 
