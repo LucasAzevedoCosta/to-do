@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
 import * as schema from 'src/db/schema';
 import { DRIZZLE_DB } from 'src/db/drizzle.provider';
-import { uuidv4 } from 'better-auth';
+import { v4 as uuidv4 } from 'uuid';
 
 interface TaskInput {
   title: string;

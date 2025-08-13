@@ -8,7 +8,7 @@ import type { Request, Response } from 'express';
 export class AuthController {
   constructor(@Inject('AUTH') private auth: ReturnType<typeof betterAuth>) {}
 
-  @All('*')
+  @All('api/auth/*')
   async betterAuthHandler(@Req() req: Request, @Res() res: Response) {
     const handler = toNodeHandler(this.auth);
     return handler(req, res);
