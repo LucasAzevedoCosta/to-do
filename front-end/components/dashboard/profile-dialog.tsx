@@ -35,6 +35,7 @@ export function ProfileDialog({ isOpen, onOpenChange }: ProfileDialogProps) {
     async function fetchUser() {
       try {
         const res = await axiosInstance.get("/users/me");
+        console.log(res.data)
         setUser(res.data.user);
       } catch (err) {
         console.error("Erro ao carregar dados do usuário:", err);
@@ -62,7 +63,6 @@ export function ProfileDialog({ isOpen, onOpenChange }: ProfileDialogProps) {
             <h3 className="text-xl font-semibold text-foreground">
               {user?.name}
             </h3>
-            <p className="text-muted-foreground">Usuário Premium</p>
           </div>
 
           <div className="w-full space-y-4">
@@ -70,7 +70,7 @@ export function ProfileDialog({ isOpen, onOpenChange }: ProfileDialogProps) {
               <Mail className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="text-sm font-medium text-foreground">Email</p>
-                <p className="text-sm text-muted-foreground">{user?.name}</p>
+                <p className="text-sm text-muted-foreground">{user?.email}</p>
               </div>
             </div>
 
