@@ -13,6 +13,33 @@ export interface Task {
   description: string;
 }
 
+export function isFormValid(task: Task): { valid: boolean; message?: string } {
+  const { title, description, status, priority, startDate, deadline } = task;
+
+  if (
+    !title ||
+    !description ||
+    !status ||
+    !priority ||
+    !startDate ||
+    !deadline
+  ) {
+    return { valid: false, message: "Todos os campos devem ser preenchidos." };
+  }
+
+  const start = new Date(startDate);
+  const end = new Date(deadline);
+
+  if (end < start) {
+    return {
+      valid: false,
+      message: "O prazo deve ser posterior ou igual à data de início.",
+    };
+  }
+
+  return { valid: true };
+}
+
 export async function createTask(
   taskData: Omit<Task, "id">,
   onTaskCreated: (newTask: Task) => void

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -19,7 +19,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Task } from "@/lib/tasks/task-helpers";
+import { isFormValid, Task } from "@/lib/tasks/task-helpers";
+import { toast } from "sonner";
 
 interface CreateTaskDialogProps {
   isOpen: boolean;
@@ -37,16 +38,29 @@ const emptyTask: Task = {
   deadline: "",
 };
 
-export function CreateTaskDialog({ isOpen, onOpenChange, onSave }: CreateTaskDialogProps) {
+export function CreateTaskDialog({
+  isOpen,
+  onOpenChange,
+  onSave,
+}: CreateTaskDialogProps) {
   const [formData, setFormData] = useState<Task>(emptyTask);
 
   const handleSave = () => {
+    const validation = isFormValid(formData);
+    if (!validation.valid) {
+      toast.error(validation.message);
+      return;
+    }
+
     const newTask = {
-      ...formData
+      ...formData,
     };
+
     onSave(newTask);
     setFormData(emptyTask);
     onOpenChange(false);
+
+    toast.success("Tarefa criada com sucesso!");
   };
 
   return (
@@ -55,14 +69,16 @@ export function CreateTaskDialog({ isOpen, onOpenChange, onSave }: CreateTaskDia
         <DialogHeader>
           <DialogTitle>Criar Tarefa</DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="titulo">Título</Label>
             <Input
               id="title"
               value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
               placeholder="Digite o título da tarefa"
             />
           </div>
@@ -72,7 +88,9 @@ export function CreateTaskDialog({ isOpen, onOpenChange, onSave }: CreateTaskDia
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               placeholder="Digite a descrição da tarefa"
               rows={3}
             />
@@ -83,7 +101,7 @@ export function CreateTaskDialog({ isOpen, onOpenChange, onSave }: CreateTaskDia
               <Label htmlFor="status">Status</Label>
               <Select
                 value={formData.status}
-                onValueChange={(value: "concluido" | "nao_concluido") => 
+                onValueChange={(value: "concluido" | "nao_concluido") =>
                   setFormData({ ...formData, status: value })
                 }
               >
@@ -101,9 +119,9 @@ export function CreateTaskDialog({ isOpen, onOpenChange, onSave }: CreateTaskDia
               <Label htmlFor="prioridade">Prioridade</Label>
               <Select
                 value={formData.priority}
-                onValueChange={(value: "urgente" | "alta" | "media" | "baixa") => 
-                  setFormData({ ...formData, priority: value })
-                }
+                onValueChange={(
+                  value: "urgente" | "alta" | "media" | "baixa"
+                ) => setFormData({ ...formData, priority: value })}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -125,7 +143,9 @@ export function CreateTaskDialog({ isOpen, onOpenChange, onSave }: CreateTaskDia
                 id="startDate"
                 type="date"
                 value={formData.startDate}
-                onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, startDate: e.target.value })
+                }
               />
             </div>
 
@@ -135,7 +155,9 @@ export function CreateTaskDialog({ isOpen, onOpenChange, onSave }: CreateTaskDia
                 id="deadline"
                 type="date"
                 value={formData.deadline}
-                onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, deadline: e.target.value })
+                }
               />
             </div>
           </div>

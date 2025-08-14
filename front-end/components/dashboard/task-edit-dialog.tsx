@@ -19,7 +19,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Task } from "@/lib/tasks/task-helpers";
+import { isFormValid, Task } from "@/lib/tasks/task-helpers";
+import { toast } from "sonner";
 
 interface TaskEditDialogProps {
   task: Task | null;
@@ -48,8 +49,18 @@ export function TaskEditDialog({
   if (!task || !formData) return null;
 
   const handleSave = () => {
+    if (!formData) return;
+
+    const validation = isFormValid(formData);
+    if (!validation.valid) {
+      toast.error(validation.message);
+      return;
+    }
+
     onSave(formData);
     onOpenChange(false);
+
+    toast.success("Tarefa editada com sucesso!");
   };
 
   return (
