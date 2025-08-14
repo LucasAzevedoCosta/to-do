@@ -29,6 +29,7 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { authClient } from "@/lib/auth/auth-client";
 import Link from "next/link";
+import { appUrl } from "@/lib/helpers";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -53,7 +54,7 @@ export function LoginForm({
   const signInWithGoogle = async () => {
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: "http://localhost:3000/dashboard",
+      callbackURL: `${appUrl}/dashboard`,
     });
   };
 
