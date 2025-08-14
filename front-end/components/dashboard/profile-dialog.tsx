@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { User, Mail, Calendar, CheckCircle } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -18,10 +18,11 @@ interface ProfileDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-interface UserProfile {
+export interface UserProfile {
   name: string;
   email: string;
   createdAt: string;
+  image: string;
   completedTasksCount: number;
   tags: string[];
 }
@@ -35,7 +36,7 @@ export function ProfileDialog({ isOpen, onOpenChange }: ProfileDialogProps) {
     async function fetchUser() {
       try {
         const res = await axiosInstance.get("/users/me");
-        console.log(res.data)
+        console.log(res.data);
         setUser(res.data.user);
       } catch (err) {
         console.error("Erro ao carregar dados do usuário:", err);
@@ -54,9 +55,13 @@ export function ProfileDialog({ isOpen, onOpenChange }: ProfileDialogProps) {
 
         <div className="flex flex-col items-center space-y-6 py-4">
           <Avatar className="h-20 w-20 bg-gradient-to-br from-primary to-secondary">
-            <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-card-foreground text-xl">
-              {user?.name?.[0] ?? "?"}
-            </AvatarFallback>
+            {user?.image ? (
+              <AvatarImage src={user.image} alt={user.name} />
+            ) : (
+              <AvatarFallback>
+                <User className="h-4 w-4" />
+              </AvatarFallback>
+            )}
           </Avatar>
 
           <div className="text-center space-y-2">

@@ -1,14 +1,28 @@
 "use client";
 
-import { useState } from "react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useEffect, useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { User } from "lucide-react";
-import { ProfileDialog } from "./profile-dialog";
+import { ProfileDialog, UserProfile } from "./profile-dialog";
 import { Logout } from "../logout";
+import axiosInstance from "@/lib/axios/axiosInstance";
 
 export function DashboardHeader() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const res = await axiosInstance.get("/users/me");
+        setUser(res.data.user);
+      } catch (err) {
+        console.error("Erro ao carregar dados do usuário:", err);
+      }
+    }
+
+    fetchUser();
+  }, []);
 
   return (
     <>
@@ -28,9 +42,13 @@ export function DashboardHeader() {
                   Perfil
                 </span>
                 <Avatar className="h-8 w-8 bg-primary">
-                  <AvatarFallback className="bg-primary text-card-foreground">
-                    <User className="h-4 w-4" />
-                  </AvatarFallback>
+                  {user?.image ? (
+                    <AvatarImage src={user.image} alt={user.name} />
+                  ) : (
+                    <AvatarFallback className="bg-primary text-card-foreground">
+                      <User className="h-4 w-4 text-primary-foreground" />
+                    </AvatarFallback>
+                  )}
                 </Avatar>
               </Button>
             </div>
