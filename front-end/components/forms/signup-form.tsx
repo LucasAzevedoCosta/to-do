@@ -162,12 +162,6 @@ export function SignupForm({
                           </FormItem>
                         )}
                       />
-                      <a
-                        href="/forgot-password"
-                        className="ml-auto text-sm underline-offset-4 hover:underline"
-                      >
-                        Esqueceu sua senha?
-                      </a>
                     </div>
                   </div>
                   <Button type="submit" className="w-full" disabled={isLoading}>
