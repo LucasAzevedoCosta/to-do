@@ -1,10 +1,10 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TaskTable, type Task } from "./task-table";
+import { TaskTable, } from "./task-table";
 import { CreateTaskDialog } from "./create-tasks-dialog";
 import { useState } from "react";
-import { Button } from "@react-email/components";
-import axiosInstance from "@/lib/axios/axiosInstance";
+import { Button } from "../ui/button";
+import { createTask, Task } from "@/lib/tasks/task-helpers";
 
 interface TaskListCardProps {
   tasks: Task[];
@@ -19,16 +19,9 @@ export function TaskListCard({
 }: TaskListCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const handleSaveTask = async (taskData: Omit<Task, "id">) => {
-    try {
-      const res = await axiosInstance.post("/tasks", taskData);
-      const createdTask: Task = res.data;
-      onTaskCreated(createdTask);
-      console.log("Nova tarefa criada:", createdTask);
-    } catch (error) {
-      console.error("Erro ao criar tarefa:", error);
-    }
-  };
+  const handleSaveTask = (taskData: Omit<Task, "id">) => {
+  createTask(taskData, onTaskCreated);
+};
 
   return (
     <Card className="shadow-lg border-0 bg-card backdrop-blur-sm">

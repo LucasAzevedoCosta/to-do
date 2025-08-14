@@ -10,21 +10,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { TaskActions } from "./task-actions";
-import { TaskStatusBadge, type TaskStatus } from "./task-status-badge";
-import { PriorityBadge, type TaskPriority } from "./priority-badge";
+import { TaskStatusBadge } from "./task-status-badge";
+import { PriorityBadge } from "./priority-badge";
 import { formatDate } from "@/lib/helpers";
-import { isOverdue } from "@/lib/tasks/task-helpers";
-
-export interface Task {
-  id: string;
-  title: string;
-  status: TaskStatus;
-  startDate: string;
-  deadline: string;
-  createdAt?: string;
-  priority: TaskPriority;
-  description: string;
-}
+import { isOverdue, Task } from "@/lib/tasks/task-helpers";
 
 interface TaskTableProps {
   tasks: Task[];

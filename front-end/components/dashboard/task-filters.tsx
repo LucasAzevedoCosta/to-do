@@ -53,7 +53,7 @@ export function TaskFilters({
 
         <Select
           value={filters.status}
-          onValueChange={(value) =>
+          onValueChange={(value: any) =>
             onFiltersChange({ ...filters, status: value })
           }
         >
@@ -69,7 +69,7 @@ export function TaskFilters({
 
         <Select
           value={filters.priority}
-          onValueChange={(value) =>
+          onValueChange={(value: any) =>
             onFiltersChange({ ...filters, priority: value })
           }
         >

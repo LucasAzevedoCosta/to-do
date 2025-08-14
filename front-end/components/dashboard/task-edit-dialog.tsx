@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { type Task } from "./task-table";
+import { Task } from "@/lib/tasks/task-helpers";
 
 interface TaskEditDialogProps {
   task: Task | null;

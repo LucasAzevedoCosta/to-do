@@ -1,5 +1,31 @@
-import { Task } from "@/components/dashboard/task-table";
 import axiosInstance from "../axios/axiosInstance";
+import { TaskStatus } from "@/components/dashboard/task-status-badge";
+import { TaskPriority } from "@/components/dashboard/priority-badge";
+
+export interface Task {
+  id: string;
+  title: string;
+  status: TaskStatus;
+  startDate: string;
+  deadline: string;
+  createdAt?: string;
+  priority: TaskPriority;
+  description: string;
+}
+
+export async function createTask(
+  taskData: Omit<Task, "id">,
+  onTaskCreated: (newTask: Task) => void
+) {
+  try {
+    const res = await axiosInstance.post("/tasks", taskData);
+    const createdTask: Task = res.data;
+    onTaskCreated(createdTask);
+    console.log("Nova tarefa criada:", createdTask);
+  } catch (error) {
+    console.error("Erro ao criar tarefa:", error);
+  }
+}
 
 export async function updateTaskById(id: string, task: Partial<Task>) {
   try {

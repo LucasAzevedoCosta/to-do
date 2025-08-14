@@ -10,8 +10,7 @@ import {
 import { TaskViewDialog } from "@/components/dashboard/task-view-dialog";
 import { TaskEditDialog } from "@/components/dashboard/task-edit-dialog";
 import { DeleteConfirmationDialog } from "@/components/dashboard/delete-confirmation-dialog";
-import { type Task } from "@/components/dashboard/task-table";
-import { deleteTaskApi, updateTaskById } from "@/lib/tasks/task-helpers";
+import { deleteTaskApi, Task, updateTaskById } from "@/lib/tasks/task-helpers";
 import axiosInstance from "@/lib/axios/axiosInstance";
 
 export default function Dashboard() {

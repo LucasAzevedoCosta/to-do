@@ -1,28 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { User } from "lucide-react";
-import { ProfileDialog, UserProfile } from "./profile-dialog";
+import { ProfileDialog } from "./profile-dialog";
 import { Logout } from "../logout";
-import axiosInstance from "@/lib/axios/axiosInstance";
+import { useUser } from "@/lib/users/user-helpers";
 
 export function DashboardHeader() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [user, setUser] = useState<UserProfile | null>(null);
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const res = await axiosInstance.get("/users/me");
-        setUser(res.data.user);
-      } catch (err) {
-        console.error("Erro ao carregar dados do usuário:", err);
-      }
-    }
-
-    fetchUser();
-  }, []);
+  const user = useUser();
 
   return (
     <>
