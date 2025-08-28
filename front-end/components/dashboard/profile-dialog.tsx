@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { User, Mail, Calendar, CheckCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import { formatDate } from "@/lib/helpers";
+import { formatDate } from "@/lib/fomat-date";
 import axiosInstance from "@/lib/axios/axiosInstance";
 import { useUser } from "@/lib/users/user-helpers";
 

@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { TaskStatusBadge } from "./task-status-badge";
 import { PriorityBadge } from "./priority-badge";
 import { Calendar, Clock, FileText, AlertTriangle } from "lucide-react";
-import { formatDate } from "@/lib/helpers";
+import { formatDate } from "@/lib/fomat-date";
 import { isOverdue, Task } from "@/lib/tasks/task-helpers";
 
 interface TaskViewDialogProps {

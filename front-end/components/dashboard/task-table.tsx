@@ -12,7 +12,7 @@ import {
 import { TaskActions } from "./task-actions";
 import { TaskStatusBadge } from "./task-status-badge";
 import { PriorityBadge } from "./priority-badge";
-import { formatDate } from "@/lib/helpers";
+import { formatDate } from "@/lib/fomat-date";
 import { isOverdue, Task } from "@/lib/tasks/task-helpers";
 
 interface TaskTableProps {
