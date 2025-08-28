@@ -1,39 +1,34 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { mockTaskService } from '../__mocks__/task.service.mock';
 import { NotFoundException } from '@nestjs/common';
-import { TaskService } from '../task.service';
 import { TaskController } from '../task.controller';
+import { TaskService } from '../task.service';
 import { TaskPriority, TaskStatus } from '../dto/create-task.dto';
 import { AuthGuard } from '@thallesp/nestjs-better-auth';
+import { mockTaskService } from '../__mocks__/task.service.mock';
 
 describe('TaskController', () => {
   let controller: TaskController;
+  let service: jest.Mocked<TaskService>;
+
+  const mockSession: any = { user: { id: 'user-123' } };
 
   beforeEach(async () => {
+    jest.clearAllMocks();
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TaskController],
       providers: [{ provide: TaskService, useValue: mockTaskService }],
     })
       .overrideGuard(AuthGuard)
-      .useValue({ canActivate: jest.fn().mockReturnValue(true) })
+      .useValue({ canActivate: () => true })
       .compile();
 
     controller = module.get<TaskController>(TaskController);
-  });
-
-  describe('findAll', () => {
-    it('deve retornar todas as tarefas do usuário', async () => {
-      const session = { user: { id: 'user-123' } } as any;
-      const result = await controller.findAll(session);
-      expect(result).toHaveLength(1);
-      expect(result[0].userId).toBe('user-123');
-      expect(mockTaskService.getTasksByUser).toHaveBeenCalledWith('user-123');
-    });
+    service = module.get(TaskService);
   });
 
   describe('createTask', () => {
     it('deve criar uma nova tarefa', async () => {
-      const session = { user: { id: 'user-123' } } as any;
       const dto = {
         title: 'Nova tarefa',
         description: 'Descrição',
@@ -42,47 +37,45 @@ describe('TaskController', () => {
         startDate: new Date(),
         deadline: new Date(),
       };
-      const result = await controller.createTask(session, dto);
-      expect(result).toMatchObject({
-        title: 'Nova tarefa',
+
+      const result = await controller.createTask(mockSession, dto);
+
+      expect(service.createTask).toHaveBeenCalledWith({
+        ...dto,
         userId: 'user-123',
       });
-      expect(mockTaskService.createTask).toHaveBeenCalled();
+      expect(result).toHaveProperty('id');
+      expect(result.title).toBe('Nova tarefa');
     });
   });
 
   describe('updateTask', () => {
-    it('deve atualizar a tarefa', async () => {
-      const updateDto = { title: 'Atualizado' };
-      const result = await controller.updateTask('task-123', updateDto);
-      expect(result).toMatchObject({ id: 'task-123', title: 'Atualizado' });
-      expect(mockTaskService.updateTask).toHaveBeenCalledWith(
-        'task-123',
-        updateDto,
-      );
+    it('deve atualizar uma tarefa existente', async () => {
+      const dto = { title: 'Atualizada' };
+
+      const result = await controller.updateTask('task-1', dto);
+
+      expect(service.updateTask).toHaveBeenCalledWith('task-1', dto);
+      expect(result.title).toBe('Atualizada');
     });
 
-    it('deve lançar erro se ID não for fornecido', async () => {
-      await expect(controller.updateTask('', {})).rejects.toThrow(
+    it('deve lançar NotFoundException se id estiver vazio', async () => {
+      await expect(controller.updateTask('', { title: 'X' })).rejects.toThrow(
         NotFoundException,
       );
     });
   });
 
   describe('deleteTask', () => {
-    it('deve deletar a tarefa', async () => {
-      const result = await controller.deleteTask('task-123');
-      expect(result).toMatchObject({
-        id: 'task-123',
-        title: 'Tarefa excluída',
-      });
-      expect(mockTaskService.deleteTask).toHaveBeenCalledWith('task-123');
+    it('deve deletar uma tarefa existente', async () => {
+      const result = await controller.deleteTask('task-1');
+
+      expect(service.deleteTask).toHaveBeenCalledWith('task-1');
+      expect(result).toEqual({ id: 'task-1', title: 'Deletada' });
     });
 
-    it('deve lançar erro se ID não for fornecido', async () => {
-      await expect(controller.deleteTask('')).rejects.toThrow(
-        NotFoundException,
-      );
+    it('deve lançar NotFoundException se id estiver vazio', async () => {
+      await expect(controller.deleteTask('')).rejects.toThrow(NotFoundException);
     });
   });
 });

@@ -1,86 +1,57 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { v4 as uuidv4 } from 'uuid';
 import { TaskService } from '../task.service';
+import { TASK_REPOSITORY, TaskRepository } from '../task.repository';
 import { TaskPriority, TaskStatus } from '../dto/create-task.dto';
-import { DRIZZLE_DB } from 'src/db/drizzle.provider';
-import { schema } from 'src/db/schema';
+import { mockTaskRepository } from '../__mocks__/task.repository.mock';
+import { NotFoundException } from '@nestjs/common';
+import { TaskInput } from '../types';
 
 describe('TaskService', () => {
   let service: TaskService;
-  let mockDb: any;
+  let repo: jest.Mocked<TaskRepository>;
 
   beforeEach(async () => {
     jest.clearAllMocks();
 
-    const insertReturningMock = jest.fn();
-    const insertValuesMock = jest.fn(() => ({ returning: insertReturningMock }));
-
-    const updateReturningMock = jest.fn();
-    const updateWhereMock = jest.fn(() => ({ returning: updateReturningMock }));
-    const updateSetMock = jest.fn(() => ({ where: updateWhereMock }));
-    const updateMock = jest.fn(() => ({ set: updateSetMock }));
-
-    const deleteReturningMock = jest.fn();
-    const deleteWhereMock = jest.fn(() => ({ returning: deleteReturningMock }));
-    const deleteMock = jest.fn(() => ({ where: deleteWhereMock }));
-
-    mockDb = {
-      select: jest.fn(() => mockDb),
-      from: jest.fn(() => mockDb),
-      where: jest.fn(() => Promise.resolve([])),
-
-      insert: jest.fn(() => ({
-        values: insertValuesMock,
-      })),
-
-      update: updateMock,
-
-      delete: deleteMock,
-
-      _mocks: {
-        insertReturningMock,
-        updateReturningMock,
-        deleteReturningMock,
-      },
-    };
-
     const module: TestingModule = await Test.createTestingModule({
-      providers: [TaskService, { provide: DRIZZLE_DB, useValue: mockDb }],
+      providers: [
+        TaskService,
+        { provide: TASK_REPOSITORY, useValue: mockTaskRepository },
+      ],
     }).compile();
 
     service = module.get<TaskService>(TaskService);
+    repo = module.get(TASK_REPOSITORY);
   });
 
   describe('getTasksByUser', () => {
     it('deve retornar as tarefas do usuário', async () => {
-      const fakeTasks = [
+      repo.findByUser.mockResolvedValueOnce([
         {
-          id: 'task-123',
-          title: 'Teste',
-          description: 'Desc',
-          status: TaskStatus.NaoConcluido,
-          priority: TaskPriority.Baixa,
+          id: 'task-1',
+          title: 'A',
+          description: 'B',
+          status: 'nao_concluido',
+          priority: 'baixa',
           userId: 'user-1',
           createdAt: new Date(),
-          deadline: new Date(),
           startDate: new Date(),
+          deadline: new Date(),
         },
-      ];
-
-      mockDb.where.mockResolvedValue(fakeTasks);
+      ]);
 
       const result = await service.getTasksByUser('user-1');
-
-      expect(mockDb.select).toHaveBeenCalled();
-      expect(mockDb.from).toHaveBeenCalledWith(schema.task);
-      expect(result).toEqual(fakeTasks);
+      expect(repo.findByUser).toHaveBeenCalledWith('user-1');
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe('task-1');
     });
   });
 
   describe('createTask', () => {
-    it('deve criar e retornar uma tarefa', async () => {
-      const input = {
-        title: 'Nova tarefa',
+    it('deve criar e retornar a tarefa', async () => {
+      const input: TaskInput = {
+        title: 'Nova',
         description: 'Desc',
         status: TaskStatus.NaoConcluido,
         priority: TaskPriority.Baixa,
@@ -88,55 +59,75 @@ describe('TaskService', () => {
         deadline: new Date(),
         userId: 'user-1',
       };
-      const createdTask = { id: uuidv4(), ...input, createdAt: new Date() };
 
-      mockDb._mocks.insertReturningMock.mockResolvedValue([createdTask]);
+      // para checar o id gerado, fazemos o repo.create ecoar o mesmo shape
+      repo.create.mockImplementationOnce(async (data) => ({
+        ...data,
+        createdAt: new Date(),
+      }));
 
       const result = await service.createTask(input);
 
-      expect(mockDb.insert).toHaveBeenCalledWith(schema.task);
-      expect(mockDb._mocks.insertReturningMock).toHaveBeenCalled();
-      expect(result).toMatchObject(input);
+      expect(repo.create).toHaveBeenCalledTimes(1);
+      const calledWith = repo.create.mock.calls[0][0];
+      expect(calledWith.id).toBeDefined();
+      expect(result).toMatchObject({
+        title: 'Nova',
+        userId: 'user-1',
+      });
     });
   });
 
   describe('updateTask', () => {
     it('deve atualizar e retornar a tarefa', async () => {
-      const updatedTask = {
+      repo.update.mockResolvedValueOnce({
         id: 'task-1',
-        title: 'Atualizado',
-        description: 'Desc',
+        title: 'Atualizada',
+        description: 'X',
         status: TaskStatus.NaoConcluido,
         priority: TaskPriority.Baixa,
         userId: 'user-1',
-        createdAt: new Date(),
-        deadline: new Date(),
         startDate: new Date(),
-      };
-
-      mockDb._mocks.updateReturningMock.mockResolvedValue([updatedTask]);
-
-      const result = await service.updateTask('task-1', {
-        title: 'Atualizado',
+        deadline: new Date(),
+        createdAt: new Date(),
       });
 
-      expect(mockDb.update).toHaveBeenCalledWith(schema.task);
-      expect(mockDb._mocks.updateReturningMock).toHaveBeenCalled();
-      expect(result).toMatchObject({ id: 'task-1', title: 'Atualizado' });
+      const result = await service.updateTask('task-1', { title: 'Atualizada' });
+
+      expect(repo.update).toHaveBeenCalledWith('task-1', { title: 'Atualizada' });
+      expect(result.id).toBe('task-1');
+      expect(result.title).toBe('Atualizada');
+    });
+
+    it('deve lançar NotFoundException quando repo.update retornar null', async () => {
+      repo.update.mockResolvedValueOnce(null);
+
+      await expect(service.updateTask('task-x', { title: 'N/A' }))
+        .rejects
+        .toThrow(NotFoundException);
+
+      expect(repo.update).toHaveBeenCalledWith('task-x', { title: 'N/A' });
     });
   });
 
   describe('deleteTask', () => {
     it('deve deletar e retornar a tarefa', async () => {
-      const deletedTask = { id: 'task-1', title: 'Apagada' };
-
-      mockDb._mocks.deleteReturningMock.mockResolvedValue([deletedTask]);
+      repo.delete.mockResolvedValueOnce({ id: 'task-1', title: 'Apagada' } as any);
 
       const result = await service.deleteTask('task-1');
 
-      expect(mockDb.delete).toHaveBeenCalledWith(schema.task);
-      expect(mockDb._mocks.deleteReturningMock).toHaveBeenCalled();
-      expect(result).toEqual(deletedTask);
+      expect(repo.delete).toHaveBeenCalledWith('task-1');
+      expect(result).toEqual({ id: 'task-1', title: 'Apagada' });
+    });
+
+    it('deve lançar NotFoundException quando repo.delete retornar null', async () => {
+      repo.delete.mockResolvedValueOnce(null);
+
+      await expect(service.deleteTask('task-x'))
+        .rejects
+        .toThrow(NotFoundException);
+
+      expect(repo.delete).toHaveBeenCalledWith('task-x');
     });
   });
 });
