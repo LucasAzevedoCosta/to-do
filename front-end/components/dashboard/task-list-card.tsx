@@ -4,7 +4,6 @@ import { TaskTable, } from "./task-table";
 import { CreateTaskDialog } from "./create-tasks-dialog";
 import { useState } from "react";
 import { Button } from "../ui/button";
-import { createTask, Task } from "@/lib/tasks/task-helpers";
 
 interface TaskListCardProps {
   tasks: Task[];

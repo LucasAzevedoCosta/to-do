@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button";
 import { User } from "lucide-react";
 import { ProfileDialog } from "./profile-dialog";
 import { Logout } from "../logout";
-import { useUser } from "@/lib/users/user-helpers";
+import { useUser } from "@/hooks/useUser";
 
 export function DashboardHeader() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const user = useUser();
+  const { data: user } = useUser();
 
   return (
     <>

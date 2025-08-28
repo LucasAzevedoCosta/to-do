@@ -9,10 +9,9 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { User, Mail, Calendar, CheckCircle } from "lucide-react";
-import { useEffect, useState } from "react";
-import { formatDate } from "@/lib/fomat-date";
-import axiosInstance from "@/lib/axios/axiosInstance";
-import { useUser } from "@/lib/users/user-helpers";
+import { useUser } from "@/hooks/useUser";
+import { formatDate } from "@/lib/utils/format-date";
+
 
 interface ProfileDialogProps {
   isOpen: boolean;
@@ -20,7 +19,15 @@ interface ProfileDialogProps {
 }
 
 export function ProfileDialog({ isOpen, onOpenChange }: ProfileDialogProps) {
- const user = useUser(isOpen);
+ const { data: user, isLoading, isError } = useUser(isOpen);
+
+  if (isLoading) {
+    return <div>Carregando...</div>;
+  }
+
+  if (isError) {
+    return <div>Erro ao carregar dados do usuário</div>;
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>

@@ -29,7 +29,7 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { authClient } from "@/lib/auth/auth-client";
 import Link from "next/link";
-import { appUrl } from "@/lib/app-url";
+import { appUrl } from "@/lib/utils/app-url";
 
 const formSchema = z.object({
   email: z.string().email(),

@@ -12,8 +12,9 @@ import {
 import { TaskActions } from "./task-actions";
 import { TaskStatusBadge } from "./task-status-badge";
 import { PriorityBadge } from "./priority-badge";
-import { formatDate } from "@/lib/fomat-date";
-import { isOverdue, Task } from "@/lib/tasks/task-helpers";
+import { Task } from "@/types/task";
+import { formatDate } from "@/lib/utils/format-date";
+import { isOverdue } from "@/lib/utils/tasks";
 
 interface TaskTableProps {
   tasks: Task[];

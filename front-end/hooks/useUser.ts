@@ -8,9 +8,10 @@ export const userKeys = {
   me: () => [...userKeys.all, "me"] as const,
 };
 
-export function useUser() {
+export function useUser(enabled = true) {
   return useQuery({
     queryKey: userKeys.me(),
     queryFn: getMe,
+    enabled,
   });
 }

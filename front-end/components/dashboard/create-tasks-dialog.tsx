@@ -19,8 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { isFormValid, Task } from "@/lib/tasks/task-helpers";
 import { toast } from "sonner";
+import { Task } from "@/types/task";
+import { isFormValid } from "@/lib/utils/tasks";
 
 interface CreateTaskDialogProps {
   isOpen: boolean;
