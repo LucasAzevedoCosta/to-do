@@ -4,11 +4,11 @@ import { betterAuth } from 'better-auth';
 import { toNodeHandler } from 'better-auth/node';
 import type { Request, Response } from 'express';
 
-@Controller('auth')
+@Controller('api/auth')
 export class AuthController {
   constructor(@Inject('AUTH') private auth: ReturnType<typeof betterAuth>) {}
 
-  @All('api/auth/*')
+  @All('*')
   async betterAuthHandler(@Req() req: Request, @Res() res: Response) {
     const handler = toNodeHandler(this.auth);
     return handler(req, res);
