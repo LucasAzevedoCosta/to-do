@@ -1,64 +1,97 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  UseMutationResult,
+} from "@tanstack/react-query";
 import type { Task } from "@/types/task";
 import * as tasks from "@/services/tasks";
 
 export const taskKeys = {
   all: ["tasks"] as const,
-  lists: () => [...taskKeys.all, "list"] as const,
-  list: (filters?: unknown) => [...taskKeys.lists(), { filters }] as const,
-  details: () => [...taskKeys.all, "detail"] as const,
-  detail: (id: string) => [...taskKeys.details(), id] as const,
+  lists: () => ["tasks", "list"] as const,
+  list: (filters?: unknown) =>
+    (filters
+      ? (["tasks", "list", filters] as const)
+      : (["tasks", "list"] as const)),
+  details: () => ["tasks", "detail"] as const,
+  detail: (id: string) => ["tasks", "detail", id] as const,
 };
 
-// 🔹 Lista de tarefas
-export function useTasks() {
+
+export function useTasks(filters?: unknown) {
   return useQuery({
-    queryKey: taskKeys.list(),
-    queryFn: tasks.listTasks,
+    queryKey: taskKeys.list(filters),
+    queryFn: async () => {
+      const data = await tasks.listTasks();
+      return data ?? [];
+    },
+    placeholderData: [],
+    staleTime: 30_000,
   });
 }
 
-// 🔹 Detalhe de uma tarefa específica
+
 export function useTask(id: string) {
   return useQuery({
     queryKey: taskKeys.detail(id),
-    queryFn: () => tasks.getTask(id),
-    enabled: !!id, // só executa se tiver id
+    queryFn: async () => {
+      const data = await tasks.getTask(id);
+      return data ?? null;
+    },
+    enabled: !!id,
+    staleTime: 30_000,
   });
 }
 
-// 🔹 Criar tarefa
-export function useCreateTask() {
+export function useCreateTask(): UseMutationResult<
+  Task,
+  Error,
+  Omit<Task, "id" | "createdAt">
+> {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: tasks.createTask,
-    onSuccess: () => {
+    onSuccess: (created) => {
       qc.invalidateQueries({ queryKey: taskKeys.lists() });
+      if (created?.id) {
+        qc.setQueryData(taskKeys.detail(created.id), created);
+      }
     },
   });
 }
 
-// 🔹 Atualizar tarefa
-export function useUpdateTask(id: string) {
+
+export function useUpdateTask(): UseMutationResult<
+  Task,
+  Error,
+  { id: string; input: Partial<Omit<Task, "id">> }
+> {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (input: Partial<Omit<Task, "id">>) => tasks.updateTask(id, input),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: taskKeys.detail(id) });
+    mutationFn: ({ id, input }) => tasks.updateTask(id, input),
+    onSuccess: (updated) => {
       qc.invalidateQueries({ queryKey: taskKeys.lists() });
+      if (updated?.id) {
+        qc.setQueryData(taskKeys.detail(updated.id), updated);
+      }
     },
   });
 }
 
-// 🔹 Deletar tarefa
-export function useDeleteTask() {
+export function useDeleteTask(): UseMutationResult<
+  { success: boolean; message?: string },
+  Error,
+  string
+> {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: tasks.deleteTask,
-    onSuccess: () => {
+    mutationFn: (id: string) => tasks.deleteTask(id),
+    onSuccess: (_res, id) => {
       qc.invalidateQueries({ queryKey: taskKeys.lists() });
+      if (id) qc.removeQueries({ queryKey: taskKeys.detail(id) });
     },
   });
 }

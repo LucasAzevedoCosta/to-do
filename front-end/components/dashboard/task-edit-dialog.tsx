@@ -19,28 +19,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { isFormValid, Task } from "@/lib/tasks/task-helpers";
 import { toast } from "sonner";
+import { Task } from "@/types/task";
+import { isFormValid } from "@/lib/utils/tasks";
+import { useUpdateTask } from "@/hooks/useTasks";
 
 interface TaskEditDialogProps {
   task: Task | null;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (task: Task) => void;
 }
 
 export function TaskEditDialog({
   task,
   isOpen,
   onOpenChange,
-  onSave,
 }: TaskEditDialogProps) {
   const [formData, setFormData] = useState<Task | null>(task);
-
-  function formatDateForInput(date: string | Date | null | undefined): string {
-    if (!date) return "";
-    return new Date(date).toISOString().split("T")[0];
-  }
+  const updateTaskMutation = useUpdateTask();
 
   useEffect(() => {
     setFormData(task);
@@ -49,19 +45,30 @@ export function TaskEditDialog({
   if (!task || !formData) return null;
 
   const handleSave = () => {
-    if (!formData) return;
-
     const validation = isFormValid(formData);
     if (!validation.valid) {
       toast.error(validation.message);
       return;
     }
 
-    onSave(formData);
-    onOpenChange(false);
-
-    toast.success("Tarefa editada com sucesso!");
+    updateTaskMutation.mutate(
+      { id: formData.id, input: { ...formData } },
+      {
+        onSuccess: () => {
+          toast.success("Tarefa editada com sucesso!");
+          onOpenChange(false);
+        },
+        onError: () => {
+          toast.error("Erro ao editar a tarefa.");
+        },
+      }
+    );
   };
+
+  function formatDateForInput(date: string | Date | null | undefined): string {
+    if (!date) return "";
+    return new Date(date).toISOString().split("T")[0];
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -164,10 +171,16 @@ export function TaskEditDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={updateTaskMutation.isPending}
+          >
             Cancelar
           </Button>
-          <Button onClick={handleSave}>Salvar Alterações</Button>
+          <Button onClick={handleSave} disabled={updateTaskMutation.isPending}>
+            {updateTaskMutation.isPending ? "Salvando..." : "Salvar Alterações"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

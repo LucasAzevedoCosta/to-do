@@ -53,7 +53,11 @@ export class TaskController {
     if (!id) {
       throw new NotFoundException('ID não fornecido na URL');
     }
-    return this.taskService.updateTask(id, updateTaskDto);
+    const updated = await this.taskService.updateTask(id, updateTaskDto);
+    if (!updated) {
+      throw new NotFoundException('Falha ao atualizar: tarefa não encontrada');
+    }
+    return updated;
   }
 
   @Delete(':id')
@@ -62,6 +66,7 @@ export class TaskController {
     if (!id) {
       throw new NotFoundException('ID não fornecido na URL');
     }
-    return this.taskService.deleteTask(id);
+    await this.taskService.deleteTask(id);
+    return { success: true };
   }
 }

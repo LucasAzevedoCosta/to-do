@@ -1,27 +1,34 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TaskTable, } from "./task-table";
+import { TaskTable } from "./task-table";
 import { CreateTaskDialog } from "./create-tasks-dialog";
 import { useState } from "react";
 import { Button } from "../ui/button";
+import type { Task } from "@/types/task";
+import { useCreateTask } from "@/hooks/useTasks";
+import { toast } from "sonner";
 
 interface TaskListCardProps {
   tasks: Task[];
   onTaskAction: (taskId: string, action: string) => void;
-  onTaskCreated: (newTask: Task) => void;
 }
 
-export function TaskListCard({
-  tasks,
-  onTaskAction,
-  onTaskCreated,
-}: TaskListCardProps) {
+export function TaskListCard({ tasks, onTaskAction }: TaskListCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const createTaskMutation = useCreateTask();
 
-  const handleSaveTask = (taskData: Omit<Task, "id">) => {
-  createTask(taskData, onTaskCreated);
-};
-
+  const handleSaveTask = (taskData: Omit<Task, "id" | "createdAt">) => {
+    createTaskMutation.mutate(taskData, {
+      onSuccess: () => {
+        toast.success("Tarefa criada com sucesso!");
+        setIsDialogOpen(false);
+      },
+      onError: (error: any) => {
+        toast.error("Erro ao criar a tarefa. Tente novamente.");
+        console.error("Erro ao criar tarefa:", error);
+      },
+    });
+  };
   return (
     <Card className="shadow-lg border-0 bg-card backdrop-blur-sm">
       <CardHeader className="pb-4">
