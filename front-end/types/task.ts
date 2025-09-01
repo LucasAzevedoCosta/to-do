@@ -11,3 +11,10 @@ export interface Task {
   priority: TaskPriority;
   description: string;
 }
+export type CreateTaskInput = Omit<Task, "id" | "createdAt">;
+
+export type TaskForm = Pick<
+  Task,
+  "title" | "description" | "status" | "priority" | "startDate" | "deadline"
+>;
+

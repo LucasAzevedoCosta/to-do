@@ -20,17 +20,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Task } from "@/types/task";
+import type { CreateTaskInput, Task, TaskForm } from "@/types/task";
 import { isFormValid } from "@/lib/utils/tasks";
 
 interface CreateTaskDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (task: Task) => void;
+  onSave: (task: Omit<Task, "id" | "createdAt">) => void;
 }
 
-const emptyTask: Task = {
-  id: "",
+const emptyTask: Omit<Task, "id" | "createdAt"> = {
   title: "",
   description: "",
   status: "nao_concluido",
@@ -44,23 +43,18 @@ export function CreateTaskDialog({
   onOpenChange,
   onSave,
 }: CreateTaskDialogProps) {
-  const [formData, setFormData] = useState<Task>(emptyTask);
+  const [formData, setFormData] = useState<CreateTaskInput>(emptyTask);
 
   const handleSave = () => {
-    const validation = isFormValid(formData);
+    const validation = isFormValid(formData as TaskForm);
     if (!validation.valid) {
       toast.error(validation.message);
       return;
     }
 
-    const newTask = {
-      ...formData,
-    };
-
-    onSave(newTask);
+    onSave(formData);
     setFormData(emptyTask);
     onOpenChange(false);
-
     toast.success("Tarefa criada com sucesso!");
   };
 
@@ -73,24 +67,24 @@ export function CreateTaskDialog({
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="titulo">Título</Label>
+            <Label htmlFor="title">Título</Label>
             <Input
               id="title"
               value={formData.title}
               onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
+                setFormData((s) => ({ ...s, title: e.target.value }))
               }
               placeholder="Digite o título da tarefa"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="descricao">Descrição</Label>
+            <Label htmlFor="description">Descrição</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
+                setFormData((s) => ({ ...s, description: e.target.value }))
               }
               placeholder="Digite a descrição da tarefa"
               rows={3}
@@ -103,11 +97,11 @@ export function CreateTaskDialog({
               <Select
                 value={formData.status}
                 onValueChange={(value: "concluido" | "nao_concluido") =>
-                  setFormData({ ...formData, status: value })
+                  setFormData((s) => ({ ...s, status: value }))
                 }
               >
-                <SelectTrigger>
-                  <SelectValue />
+                <SelectTrigger id="status">
+                  <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="concluido">Concluído</SelectItem>
@@ -117,15 +111,15 @@ export function CreateTaskDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="prioridade">Prioridade</Label>
+              <Label htmlFor="priority">Prioridade</Label>
               <Select
                 value={formData.priority}
                 onValueChange={(
                   value: "urgente" | "alta" | "media" | "baixa"
-                ) => setFormData({ ...formData, priority: value })}
+                ) => setFormData((s) => ({ ...s, priority: value }))}
               >
-                <SelectTrigger>
-                  <SelectValue />
+                <SelectTrigger id="priority">
+                  <SelectValue placeholder="Selecione" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="urgente">⚡ Urgente</SelectItem>
@@ -139,25 +133,25 @@ export function CreateTaskDialog({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="dataInicio">Data de Início</Label>
+              <Label htmlFor="startDate">Data de Início</Label>
               <Input
                 id="startDate"
                 type="date"
                 value={formData.startDate}
                 onChange={(e) =>
-                  setFormData({ ...formData, startDate: e.target.value })
+                  setFormData((s) => ({ ...s, startDate: e.target.value }))
                 }
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="prazo">Prazo</Label>
+              <Label htmlFor="deadline">Prazo</Label>
               <Input
                 id="deadline"
                 type="date"
                 value={formData.deadline}
                 onChange={(e) =>
-                  setFormData({ ...formData, deadline: e.target.value })
+                  setFormData((s) => ({ ...s, deadline: e.target.value }))
                 }
               />
             </div>

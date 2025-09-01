@@ -1,6 +1,9 @@
-import { Task } from "@/types/task";
+import { TaskForm } from "@/types/task";
 
-export function isFormValid(task: Task): { valid: boolean; message?: string } {
+export function isFormValid(task: TaskForm): {
+  valid: boolean;
+  message?: string;
+} {
   const { title, description, status, priority, startDate, deadline } = task;
 
   if (
